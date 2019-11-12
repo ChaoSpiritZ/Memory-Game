@@ -8,32 +8,39 @@ namespace Memory_Game
 {
     class Program
     {
+        private static int[,] board;
+        private static int p1Score = 0;
+        private static int p2Score = 0;
+        private static int chosenRow1 = -1;
+        private static int chosenCol1 = -1;
+        private static int chosenRow2 = -1;
+        private static int chosenCol2 = -1;
+        private static int boardHeight;
+        private static int boardWidth;
+        private static int pairs;
+        private static bool turn = true; //true = player 1, false = player 2
+
         static void Main(string[] args)
         {
-            BuildBoard(out int[,] board, out int boardHeight, out int boardWidth, out int pairs);
+            BuildBoard();
 
+            // ---------------------cheating-zone-------------------
             //Console.Clear();
             //Console.WriteLine("Cheat Sheet: ");
             //DrawVisibleBoard(board);
             //Console.ReadLine();
+            // -----------------------------------------------------
 
-            int p1Score = 0;
-            int p2Score = 0;
-            int chosenRow1 = -1;
-            int chosenCol1 = -1;
-            int chosenRow2 = -1;
-            int chosenCol2 = -1;
-            bool turn = true; //true = player 1, false = player 2
             while (pairs > 0)
             {
-                PickFirstCard(ref board, ref boardHeight, ref boardWidth, ref chosenRow1, ref chosenCol1, ref p1Score, ref p2Score, ref turn);
-                PickSecondCard(ref board, ref boardHeight, ref boardWidth, ref chosenRow1, ref chosenCol1, ref chosenRow2, ref chosenCol2, ref p1Score, ref p2Score, ref turn);
-                MatchResult(ref board, ref pairs, ref p1Score, ref p2Score, ref chosenRow1, ref chosenCol1, ref chosenRow2, ref chosenCol2, ref turn);
+                PickFirstCard();
+                PickSecondCard();
+                MatchResult();
             }
-            GameOver(board, p1Score, p2Score);
+            GameOver();
         }
 
-        private static void GameOver(int[,] board, int p1Score, int p2Score)
+        private static void GameOver()
         {
             Console.Clear();
             DrawPoints(p1Score, p2Score);
@@ -56,7 +63,7 @@ namespace Memory_Game
 
         //END OF MAIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        private static void BuildBoard(out int[,] board, out int boardHeight, out int boardWidth, out int pairs)
+        private static void BuildBoard()
         {
             Random rngsus = new Random();
             int rowrng = 0;
@@ -100,7 +107,7 @@ namespace Memory_Game
             }
         }
 
-        private static void PickFirstCard(ref int[,] board, ref int boardHeight, ref int boardWidth, ref int chosenRow1, ref int chosenCol1, ref int p1Score, ref int p2Score, ref bool turn)
+        private static void PickFirstCard()
         {
             do //picking the first card
             {
@@ -141,7 +148,7 @@ namespace Memory_Game
             while (board[chosenRow1 - 1, chosenCol1 - 1] == 0);
         }
 
-        private static void PickSecondCard(ref int[,] board, ref int boardHeight, ref int boardWidth, ref int chosenRow1, ref int chosenCol1, ref int chosenRow2, ref int chosenCol2, ref int p1Score, ref int p2Score, ref bool turn)
+        private static void PickSecondCard()
         {
             do // picking the second card
             {
@@ -193,7 +200,7 @@ namespace Memory_Game
             while (board[chosenRow2 - 1, chosenCol2 - 1] == 0 || (chosenRow2 - 1 == chosenRow1 - 1 && chosenCol2 - 1 == chosenCol1 - 1));
         }
 
-        private static void MatchResult(ref int[,] board, ref int pairs, ref int p1Score, ref int p2Score, ref int chosenRow1, ref int chosenCol1, ref int chosenRow2, ref int chosenCol2, ref bool turn)
+        private static void MatchResult()
         {
             Console.Clear();
             DrawPoints(p1Score, p2Score);
