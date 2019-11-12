@@ -10,18 +10,64 @@ namespace Memory_Game
     {
         static void Main(string[] args)
         {
+            BuildBoard(out int[,] board, out int boardHeight, out int boardWidth, out int pairs);
+
+            //Console.Clear();
+            //Console.WriteLine("Cheat Sheet: ");
+            //DrawVisibleBoard(board);
+            //Console.ReadLine();
+
+            int p1Score = 0;
+            int p2Score = 0;
+            int chosenRow1 = -1;
+            int chosenCol1 = -1;
+            int chosenRow2 = -1;
+            int chosenCol2 = -1;
+            bool turn = true; //true = player 1, false = player 2
+            while (pairs > 0)
+            {
+                PickFirstCard(ref board, ref boardHeight, ref boardWidth, ref chosenRow1, ref chosenCol1, ref p1Score, ref p2Score, ref turn);
+                PickSecondCard(ref board, ref boardHeight, ref boardWidth, ref chosenRow1, ref chosenCol1, ref chosenRow2, ref chosenCol2, ref p1Score, ref p2Score, ref turn);
+                MatchResult(ref board, ref pairs, ref p1Score, ref p2Score, ref chosenRow1, ref chosenCol1, ref chosenRow2, ref chosenCol2, ref turn);
+            }
+            GameOver(board, p1Score, p2Score);
+        }
+
+        private static void GameOver(int[,] board, int p1Score, int p2Score)
+        {
+            Console.Clear();
+            DrawPoints(p1Score, p2Score);
+            DrawBoard(board);
+            Console.WriteLine();
+            Console.WriteLine("Game Over!");
+            if (p1Score == p2Score)
+            {
+                Console.WriteLine("It's a tie!");
+            }
+            else if (p1Score > p2Score)
+            {
+                Console.WriteLine("Player 1 wins!");
+            }
+            else
+            {
+                Console.WriteLine("Player 2 wins!");
+            }
+        }
+
+        //END OF MAIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        private static void BuildBoard(out int[,] board, out int boardHeight, out int boardWidth, out int pairs)
+        {
             Random rngsus = new Random();
             int rowrng = 0;
             int colrng = 0;
 
-            int boardHeight;
-            int boardWidth;
             do
             {
                 Console.Clear();
                 Console.Write("Enter the board's height (2, 4, 6, 8): ");
             }
-            while (int.TryParse(Console.ReadLine(),out boardHeight) == false || boardHeight > 8 || boardHeight < 2 || boardHeight % 2 != 0);
+            while (int.TryParse(Console.ReadLine(), out boardHeight) == false || boardHeight > 8 || boardHeight < 2 || boardHeight % 2 != 0);
 
             do
             {
@@ -31,8 +77,8 @@ namespace Memory_Game
             }
             while (int.TryParse(Console.ReadLine(), out boardWidth) == false || boardWidth > 8 || boardWidth < 2 || boardWidth % 2 != 0);
 
-            int[,] board = new int[boardHeight, boardWidth];
-            int pairs = (boardHeight * boardWidth) / 2;
+            board = new int[boardHeight, boardWidth];
+            pairs = (boardHeight * boardWidth) / 2;
             for (int i = 1; i <= pairs; i++)
             {
                 //first card
@@ -41,7 +87,7 @@ namespace Memory_Game
                     rowrng = rngsus.Next(0, boardHeight);
                     colrng = rngsus.Next(0, boardWidth);
                 }
-                while (board[rowrng,colrng] != 0);
+                while (board[rowrng, colrng] != 0);
                 board[rowrng, colrng] = i;
                 //second card
                 do
@@ -52,160 +98,133 @@ namespace Memory_Game
                 while (board[rowrng, colrng] != 0);
                 board[rowrng, colrng] = i;
             }
+        }
 
-            Console.Clear();
-            //DrawVisibleBoard(board);
-
-            int p1Score = 0;
-            int p2Score = 0;
-
-            int chosenRow1 = -1;
-            int chosenCol1 = -1;
-            int chosenRow2 = -1;
-            int chosenCol2 = -1;
-            bool turn = true; //true = player 1, false = player 2
-            while(pairs > 0)
+        private static void PickFirstCard(ref int[,] board, ref int boardHeight, ref int boardWidth, ref int chosenRow1, ref int chosenCol1, ref int p1Score, ref int p2Score, ref bool turn)
+        {
+            do //picking the first card
             {
-                DrawPoints(p1Score, p2Score);
-                DrawBoard(board);
-                
-                do //picking the first card
+                if (chosenRow1 - 1 >= 0 && chosenCol1 - 1 >= 0)
                 {
-                    if (chosenRow1 - 1 >= 0 && chosenCol1 - 1 >= 0)
-                    {
-
-                        if (board[chosenRow1 - 1, chosenCol1 - 1] == 0)
-                        {
-                            Console.Clear();
-                            DrawPoints(p1Score, p2Score);
-                            DrawBoard(board);
-                            DrawTurn(turn);
-                            Console.WriteLine("There is no card in this spot!");
-                            Console.ReadLine();
-                        }
-                    }
-
-                    do
+                    if (board[chosenRow1 - 1, chosenCol1 - 1] == 0)
                     {
                         Console.Clear();
                         DrawPoints(p1Score, p2Score);
                         DrawBoard(board);
                         DrawTurn(turn);
-                        Console.Write($"Enter row number of your first card (1 - {boardHeight}): ");
-                    }
-                    while (int.TryParse(Console.ReadLine(), out chosenRow1) == false || chosenRow1 > boardHeight || chosenRow1 <= 0);
-
-                    do
-                    {
-                        Console.Clear();
-                        DrawPoints(p1Score, p2Score);
-                        DrawBoard(board);
-                        DrawTurn(turn);
-                        Console.WriteLine($"Enter row number of your first card (1 - {boardHeight}): {chosenRow1}");
-                        Console.WriteLine($"Enter column number of your first card (1 - {boardWidth}): ");
-                    }
-                    while (int.TryParse(Console.ReadLine(), out chosenCol1) == false || chosenCol1 > boardWidth || chosenCol1 <= 0);
-                }
-                while (board[chosenRow1 - 1, chosenCol1 - 1] == 0);
-
-                do // picking the second card
-                {
-                    if (chosenRow2 - 1 >= 0 && chosenCol2 - 1 >= 0)
-                    {
-
-                        if (board[chosenRow2 - 1, chosenCol2 - 1] == 0)
-                        {
-                            Console.Clear();
-                            DrawPoints(p1Score, p2Score);
-                            Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
-                            DrawTurn(turn);
-                            Console.WriteLine("There is no card in this spot!");
-                            Console.ReadLine();
-                        }
-                    }
-
-                    if (chosenRow2 - 1 == chosenRow1 - 1 && chosenCol2 - 1 == chosenCol1 - 1)
-                    {
-                        Console.Clear();
-                        DrawPoints(p1Score, p2Score);
-                        Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
-                        DrawTurn(turn);
-                        Console.WriteLine("This card's face is already up! Choose different card");
+                        Console.WriteLine("There is no card in this spot!");
                         Console.ReadLine();
                     }
-
-                    do
-                    {
-                        Console.Clear();
-                        DrawPoints(p1Score, p2Score);
-                        Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
-                        DrawTurn(turn);
-                        Console.Write($"Enter row number of your second card (1 - {boardHeight}): ");
-                    }
-                    while (int.TryParse(Console.ReadLine(), out chosenRow2) == false || chosenRow2 > boardHeight || chosenRow2 <= 0);
-
-                    do
-                    {
-                        Console.Clear();
-                        DrawPoints(p1Score, p2Score);
-                        Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
-                        DrawTurn(turn);
-                        Console.WriteLine($"Enter row number of your second card (1 - {boardHeight}): {chosenRow2}");
-                        Console.WriteLine($"Enter column number of your second card (1 - {boardWidth})");
-                    }
-                    while (int.TryParse(Console.ReadLine(), out chosenCol2) == false || chosenCol2 > boardWidth || chosenCol2 <= 0);
                 }
-                while (board[chosenRow2 - 1, chosenCol2 - 1] == 0 || (chosenRow2 - 1 == chosenRow1 - 1 && chosenCol2 - 1 == chosenCol1 - 1));
 
-                Console.Clear();
-                DrawPoints(p1Score, p2Score);
-                Draw2CardsBoard(board, chosenRow1 - 1, chosenCol1 - 1, chosenRow2 - 1, chosenCol2 - 1);
-
-                if(board[chosenRow1 - 1,chosenCol1 - 1] == board[chosenRow2 - 1, chosenCol2 - 1])
+                do
                 {
-                    Console.WriteLine($"Player {(turn ? "1" : "2")} has found a match!");
-                    if (turn)
+                    Console.Clear();
+                    DrawPoints(p1Score, p2Score);
+                    DrawBoard(board);
+                    DrawTurn(turn);
+                    Console.Write($"Enter row number of your first card (1 - {boardHeight}): ");
+                }
+                while (int.TryParse(Console.ReadLine(), out chosenRow1) == false || chosenRow1 > boardHeight || chosenRow1 <= 0);
+
+                do
+                {
+                    Console.Clear();
+                    DrawPoints(p1Score, p2Score);
+                    DrawBoard(board);
+                    DrawTurn(turn);
+                    Console.WriteLine($"Enter row number of your first card (1 - {boardHeight}): {chosenRow1}");
+                    Console.WriteLine($"Enter column number of your first card (1 - {boardWidth}): ");
+                }
+                while (int.TryParse(Console.ReadLine(), out chosenCol1) == false || chosenCol1 > boardWidth || chosenCol1 <= 0);
+            }
+            while (board[chosenRow1 - 1, chosenCol1 - 1] == 0);
+        }
+
+        private static void PickSecondCard(ref int[,] board, ref int boardHeight, ref int boardWidth, ref int chosenRow1, ref int chosenCol1, ref int chosenRow2, ref int chosenCol2, ref int p1Score, ref int p2Score, ref bool turn)
+        {
+            do // picking the second card
+            {
+                if (chosenRow2 - 1 >= 0 && chosenCol2 - 1 >= 0)
+                {
+
+                    if (board[chosenRow2 - 1, chosenCol2 - 1] == 0)
                     {
-                        p1Score++;
+                        Console.Clear();
+                        DrawPoints(p1Score, p2Score);
+                        Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
+                        DrawTurn(turn);
+                        Console.WriteLine("There is no card in this spot!");
+                        Console.ReadLine();
                     }
-                    else
-                    {
-                        p2Score++;
-                    }
-                    pairs--;
-                    board[chosenRow1 - 1, chosenCol1 - 1] = 0;
-                    board[chosenRow2 - 1, chosenCol2 - 1] = 0;
+                }
+
+                if (chosenRow2 - 1 == chosenRow1 - 1 && chosenCol2 - 1 == chosenCol1 - 1)
+                {
+                    Console.Clear();
+                    DrawPoints(p1Score, p2Score);
+                    Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
+                    DrawTurn(turn);
+                    Console.WriteLine("This card's face is already up! Choose different card");
+                    Console.ReadLine();
+                }
+
+                do
+                {
+                    Console.Clear();
+                    DrawPoints(p1Score, p2Score);
+                    Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
+                    DrawTurn(turn);
+                    Console.Write($"Enter row number of your second card (1 - {boardHeight}): ");
+                }
+                while (int.TryParse(Console.ReadLine(), out chosenRow2) == false || chosenRow2 > boardHeight || chosenRow2 <= 0);
+
+                do
+                {
+                    Console.Clear();
+                    DrawPoints(p1Score, p2Score);
+                    Draw1CardBoard(board, chosenRow1 - 1, chosenCol1 - 1);
+                    DrawTurn(turn);
+                    Console.WriteLine($"Enter row number of your second card (1 - {boardHeight}): {chosenRow2}");
+                    Console.WriteLine($"Enter column number of your second card (1 - {boardWidth})");
+                }
+                while (int.TryParse(Console.ReadLine(), out chosenCol2) == false || chosenCol2 > boardWidth || chosenCol2 <= 0);
+            }
+            while (board[chosenRow2 - 1, chosenCol2 - 1] == 0 || (chosenRow2 - 1 == chosenRow1 - 1 && chosenCol2 - 1 == chosenCol1 - 1));
+        }
+
+        private static void MatchResult(ref int[,] board, ref int pairs, ref int p1Score, ref int p2Score, ref int chosenRow1, ref int chosenCol1, ref int chosenRow2, ref int chosenCol2, ref bool turn)
+        {
+            Console.Clear();
+            DrawPoints(p1Score, p2Score);
+            Draw2CardsBoard(board, chosenRow1 - 1, chosenCol1 - 1, chosenRow2 - 1, chosenCol2 - 1);
+
+            if (board[chosenRow1 - 1, chosenCol1 - 1] == board[chosenRow2 - 1, chosenCol2 - 1])
+            {
+                Console.WriteLine($"Player {(turn ? "1" : "2")} has found a match!");
+                if (turn)
+                {
+                    p1Score++;
                 }
                 else
                 {
-                    Console.WriteLine("Cards don't match!");
-                    turn = !turn;
+                    p2Score++;
                 }
-                chosenRow1 = -1;
-                chosenCol1 = -1;
-                chosenRow2 = -1;
-                chosenCol2 = -1;
-                Console.ReadLine();
-                Console.Clear();
-            }
-
-            Console.Clear();
-            DrawPoints(p1Score, p2Score);
-            DrawBoard(board);
-            Console.WriteLine();
-            Console.WriteLine("Game Over!");
-            if(p1Score == p2Score)
-            {
-                Console.WriteLine("It's a tie!");
-            }
-            else if(p1Score > p2Score)
-            {
-                Console.WriteLine("Player 1 wins!");
+                pairs--;
+                board[chosenRow1 - 1, chosenCol1 - 1] = 0;
+                board[chosenRow2 - 1, chosenCol2 - 1] = 0;
             }
             else
             {
-                Console.WriteLine("Player 2 wins!");
+                Console.WriteLine("Cards don't match!");
+                turn = !turn;
             }
+            chosenRow1 = -1;
+            chosenCol1 = -1;
+            chosenRow2 = -1;
+            chosenCol2 = -1;
+            Console.ReadLine();
+            Console.Clear();
         }
 
         private static void DrawPoints(int p1Score, int p2Score)
